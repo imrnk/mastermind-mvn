@@ -9,6 +9,22 @@ public class NumberCombinators {
         System.out.println(allCombi.size());
     }
 
+    private void remove(int place, int digit, Set<int[]> allCombi) {
+        for(Iterator<int[]> iter =  allCombi.iterator(); iter.hasNext();) {
+            int[] eachArr = iter.next();
+            if(placeAndDigitMatch(place,digit,eachArr)) {
+                iter.remove();
+            }
+        }
+    }
+
+    private boolean placeAndDigitMatch(int place, int digit, int[] iarr) {
+        for(int i =0; i <iarr.length; i++) {
+            if(i ==place && iarr[i] == digit)
+                return true;
+        }
+        return false;
+    }
 
     public static void print(Set<int[]> s) {
         for(int[] a : s) {

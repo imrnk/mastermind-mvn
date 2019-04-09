@@ -23,7 +23,7 @@ public class Player {
             int[] hintCounts = countsInHints(hints);
             if (hintCounts[0] == 4) {        // All miss
                 // Choose a new set of number
-                newGuess = numberNotIn(prevGuesses.get(guessCount));
+                newGuess = createNewSets(prevGuesses.get(guessCount));
                 prevGuesses.put(guessCount++, newGuess);
                 return newGuess;
             } else if (hintCounts[0] < 4) {   // Some matching in number and some matching in also position
@@ -37,7 +37,12 @@ public class Player {
         return new int[]{1, 1, 2, 2};
     }
 
-    private int[] numberNotIn(final int[] prevGuess) {
+    /**
+     * Create a new set of numbers excluding all the numbers from previous guess
+     * @param prevGuess
+     * @return
+     */
+    private int[] createNewSets(final int[] prevGuess) {
         int[] newGuess = new int[4];
 
         ArrayList<Integer> prevs = new ArrayList<Integer>() {
