@@ -1,22 +1,87 @@
 import org.apache.commons.math3.util.CombinatoricsUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.IntSupplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class NumberCombinators {
 
     public static void main(String[] args) {
-        Set<int[]> allCombi = generateCombinations(4);
-        System.out.println(allCombi.size());
+        /*Set<int[]> allCombi = generateCombinations(4);
+        System.out.println(allCombi.size());*/
     }
 
-    private void remove(int place, int digit, Set<int[]> allCombi) {
-        for(Iterator<int[]> iter =  allCombi.iterator(); iter.hasNext();) {
-            int[] eachArr = iter.next();
-            if(placeAndDigitMatch(place,digit,eachArr)) {
-                iter.remove();
+
+    public static void combination(int current, int length, int numDigits, int[] guess, IntStream.Builder ci){
+        if(numDigits==0 ) {
+            if(String.valueOf(current).length() == length) {
+                ci.add(current);
+            }
+            return;
+        }
+        for (int x : guess) {
+            combination(current * 10 + x, length, numDigits - 1, guess, ci);
+        }
+
+    }
+
+
+    public static IntStream caseNVP(Map<Integer, Integer> unchngDigMap,
+                               Map<Integer, Integer> excludeDigMap,  int length) {
+        int[] arr = new int[]{1,2,3,4,5,6,7,8,9,0};
+        IntStream.Builder ib = IntStream.builder();
+        combination(0,length, length, arr, ib);
+
+        return ib.build().filter(testNum -> nvpPredicate(unchngDigMap, excludeDigMap, testNum));
+    }
+
+    public static IntStream caseNV( Map<Integer, Integer> replaceDigitsMap,  int length) {
+        int[] arr = new int[]{1,2,3,4,5,6,7,8,9,0};
+        IntStream.Builder ib = IntStream.builder();
+        combination(0,length, length, arr, ib);
+
+        return ib.build().filter(testNum -> nvPredicate(replaceDigitsMap, testNum));
+    }
+
+
+
+
+    private static boolean nvPredicate(Map<Integer, Integer> replaceDigitsMap, int testNum){
+        List<String> str = Arrays.stream(String.valueOf(testNum).split("")).collect(Collectors.toList());
+
+        for(int i = 0; i < str.size(); i++) {
+             if(!replaceDigitsMap.isEmpty() && replaceDigitsMap.containsKey(i)
+                     && String.valueOf(replaceDigitsMap.get(i)).equals(str.get(i))){
+                return false;
             }
         }
+        return true;
     }
+
+    /**
+     *
+     * @param unchngDigMap (unchangedIndex -> unchangedNum)
+     * @param excludeDigMap (replaceIndex -> excludedNum)
+     * @param testNum   (each number of the combination)
+     * @return  true or false
+     */
+    private static boolean nvpPredicate(Map<Integer, Integer> unchngDigMap,
+                                  Map<Integer, Integer> excludeDigMap, int testNum){
+        List<String> str = Arrays.stream(String.valueOf(testNum).split("")).collect(Collectors.toList());
+
+        for(int i = 0; i < str.size(); i++) {
+            if(unchngDigMap.containsKey(i) && !String.valueOf(unchngDigMap.get(i)).equals(str.get(i))){
+                return false;
+            } else if(!excludeDigMap.isEmpty() && excludeDigMap.containsKey(i) &&
+                    String.valueOf(excludeDigMap.get(i)).equals(str.get(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     private boolean placeAndDigitMatch(int place, int digit, int[] iarr) {
         for(int i =0; i <iarr.length; i++) {
